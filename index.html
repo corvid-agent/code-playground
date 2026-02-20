@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Code Playground | corvid-agent</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap');
+
+  *, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  :root {
+    --bg: #08080f;
+    --card: #12121a;
+    --card-hover: #1a1a26;
+    --accent: #8b5cf6;
+    --accent-dim: #7c3aed;
+    --cyan: #06b6d4;
+    --cyan-dim: #0891b2;
+    --text: #e4e4e7;
+    --text-dim: #71717a;
+    --border: #27272a;
+    --error: #ef4444;
+    --warn: #f59e0b;
+    --success: #22c55e;
+    --mono: 'Fira Code', 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Consolas', monospace;
+    --radius: 8px;
+    --transition: 150ms ease;
+  }
+
+  html, body {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  body {
+    font-family: var(--mono);
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .header-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .header-logo {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, var(--accent), var(--cyan));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    flex-shrink: 0;
+  }
+
+  .header-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+
+  .header-subtitle {
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  /* Buttons */
+  .btn {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 7px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--card);
+    color: var(--text);
+    cursor: pointer;
+    transition: all var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+
+  .btn:hover {
+    background: var(--card-hover);
+    border-color: var(--text-dim);
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  .btn-primary:hover {
+    background: var(--accent-dim);
+    border-color: var(--accent-dim);
+  }
+
+  .btn-cyan {
+    background: var(--cyan);
+    border-color: var(--cyan);
+    color: #fff;
+  }
+
+  .btn-cyan:hover {
+    background: var(--cyan-dim);
+    border-color: var(--cyan-dim);
+  }
+
+  .btn-danger {
+    border-color: var(--error);
+    color: var(--error);
+  }
+
+  .btn-danger:hover {
+    background: rgba(239, 68, 68, 0.1);
+  }
+
+  /* Main Layout */
+  .main {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  /* Editor Panel */
+  .editor-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    border-right: 1px solid var(--border);
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .tab {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 10px 18px;
+    border: none;
+    background: transparent;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all var(--transition);
+    position: relative;
+    letter-spacing: 0.02em;
+  }
+
+  .tab:hover {
+    color: var(--text);
+    background: rgba(255,255,255,0.03);
+  }
+
+  .tab.active {
+    color: var(--text);
+  }
+
+  .tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    border-radius: 2px 2px 0 0;
+  }
+
+  .tab[data-tab="html"].active::after {
+    background: var(--error);
+  }
+
+  .tab[data-tab="css"].active::after {
+    background: var(--cyan);
+  }
+
+  .tab[data-tab="js"].active::after {
+    background: var(--warn);
+  }
+
+  .tab-indicator {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+
+  .tab[data-tab="html"] .tab-indicator { background: var(--error); }
+  .tab[data-tab="css"] .tab-indicator { background: var(--cyan); }
+  .tab[data-tab="js"] .tab-indicator { background: var(--warn); }
+
+  /* Editor Area */
+  .editor-area {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .editor-textarea {
+    width: 100%;
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    border: none;
+    outline: none;
+    resize: none;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.7;
+    padding: 16px 20px;
+    tab-size: 2;
+    -moz-tab-size: 2;
+    caret-color: var(--accent);
+    display: none;
+  }
+
+  .editor-textarea.active {
+    display: block;
+  }
+
+  .editor-textarea::selection {
+    background: rgba(139, 92, 246, 0.3);
+  }
+
+  .editor-textarea::placeholder {
+    color: var(--text-dim);
+  }
+
+  /* Status Bar */
+  .status-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 16px;
+    background: var(--card);
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text-dim);
+    flex-shrink: 0;
+    gap: 8px;
+  }
+
+  .status-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--success);
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+
+  /* Preview Panel */
+  .preview-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .preview-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 18px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .preview-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-dim);
+    letter-spacing: 0.02em;
+  }
+
+  .preview-frame-wrap {
+    flex: 1;
+    background: #ffffff;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .preview-frame-wrap iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+  }
+
+  /* Console Panel */
+  .console-panel {
+    height: 180px;
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .console-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .console-title {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .console-badge {
+    background: var(--accent);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 10px;
+    min-width: 18px;
+    text-align: center;
+    display: none;
+  }
+
+  .console-badge.visible {
+    display: inline-block;
+  }
+
+  .console-output {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 16px;
+    background: var(--bg);
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  .console-entry {
+    padding: 3px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  .console-entry-icon {
+    flex-shrink: 0;
+    font-size: 10px;
+    margin-top: 3px;
+    width: 14px;
+    text-align: center;
+  }
+
+  .console-entry-text {
+    word-break: break-all;
+    white-space: pre-wrap;
+  }
+
+  .console-entry.log { color: var(--text); }
+  .console-entry.log .console-entry-icon { color: var(--text-dim); }
+  .console-entry.error { color: var(--error); }
+  .console-entry.warn { color: var(--warn); }
+  .console-entry.info { color: var(--cyan); }
+
+  .console-placeholder {
+    color: var(--text-dim);
+    font-style: italic;
+    font-size: 12px;
+    padding: 6px 0;
+  }
+
+  /* Resize Handle */
+  .resize-handle {
+    width: 4px;
+    cursor: col-resize;
+    background: var(--border);
+    transition: background var(--transition);
+    flex-shrink: 0;
+  }
+
+  .resize-handle:hover,
+  .resize-handle.active {
+    background: var(--accent);
+  }
+
+  .console-resize-handle {
+    height: 4px;
+    cursor: row-resize;
+    background: var(--border);
+    transition: background var(--transition);
+    flex-shrink: 0;
+  }
+
+  .console-resize-handle:hover,
+  .console-resize-handle.active {
+    background: var(--cyan);
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--text-dim);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .main {
+      flex-direction: column;
+    }
+
+    .editor-panel {
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+      flex: none;
+      height: 45%;
+    }
+
+    .resize-handle {
+      display: none;
+    }
+
+    .preview-panel {
+      flex: 1;
+    }
+
+    .console-panel {
+      height: 140px;
+    }
+
+    .header {
+      padding: 10px 14px;
+    }
+
+    .header-subtitle {
+      display: none;
+    }
+
+    .btn {
+      padding: 6px 10px;
+      font-size: 11px;
+    }
+  }
+
+  /* Keyboard shortcut hint */
+  .kbd {
+    font-size: 10px;
+    color: var(--text-dim);
+    background: rgba(255,255,255,0.05);
+    padding: 2px 5px;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+    margin-left: 4px;
+  }
+
+  /* Animation */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .console-entry {
+    animation: fadeIn 120ms ease;
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+  <div class="header-brand">
+    <div class="header-logo">&lt;/&gt;</div>
+    <div>
+      <div class="header-title">Code Playground</div>
+      <div class="header-subtitle">corvid-agent</div>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-primary" id="btn-run" title="Run code">
+      Run <span class="kbd">Ctrl+Enter</span>
+    </button>
+    <button class="btn" id="btn-clear" title="Clear console output">Clear Console</button>
+    <button class="btn btn-danger" id="btn-reset" title="Reset to starter template">Reset</button>
+  </div>
+</header>
+
+<!-- Main -->
+<div class="main">
+
+  <!-- Editor Panel -->
+  <div class="editor-panel" id="editor-panel">
+    <div class="tabs">
+      <button class="tab active" data-tab="html">
+        <span class="tab-indicator"></span>HTML
+      </button>
+      <button class="tab" data-tab="css">
+        <span class="tab-indicator"></span>CSS
+      </button>
+      <button class="tab" data-tab="js">
+        <span class="tab-indicator"></span>JS
+      </button>
+    </div>
+
+    <div class="editor-area">
+      <textarea
+        class="editor-textarea active"
+        id="editor-html"
+        data-lang="html"
+        spellcheck="false"
+        placeholder="Write your HTML here..."
+      ></textarea>
+      <textarea
+        class="editor-textarea"
+        id="editor-css"
+        data-lang="css"
+        spellcheck="false"
+        placeholder="Write your CSS here..."
+      ></textarea>
+      <textarea
+        class="editor-textarea"
+        id="editor-js"
+        data-lang="js"
+        spellcheck="false"
+        placeholder="Write your JavaScript here..."
+      ></textarea>
+    </div>
+
+    <div class="status-bar">
+      <span><span class="status-dot" id="status-dot"></span><span id="status-text">Ready</span></span>
+      <span id="status-cursor">Ln 1, Col 1</span>
+    </div>
+  </div>
+
+  <!-- Resize Handle -->
+  <div class="resize-handle" id="resize-handle"></div>
+
+  <!-- Preview + Console Panel -->
+  <div class="preview-panel" id="preview-panel">
+    <div class="preview-header">
+      <span class="preview-label">Preview</span>
+      <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-dim);cursor:pointer;">
+        <input type="checkbox" id="auto-run" checked style="accent-color:var(--accent);">
+        Auto-run
+      </label>
+    </div>
+
+    <div class="preview-frame-wrap">
+      <iframe id="preview-frame" sandbox="allow-scripts allow-modals allow-same-origin" title="Preview"></iframe>
+    </div>
+
+    <!-- Console Resize Handle -->
+    <div class="console-resize-handle" id="console-resize-handle"></div>
+
+    <!-- Console -->
+    <div class="console-panel" id="console-panel">
+      <div class="console-header">
+        <span class="console-title">
+          Console
+          <span class="console-badge" id="console-badge">0</span>
+        </span>
+        <button class="btn" style="padding:4px 10px;font-size:11px;" id="btn-clear-inline">Clear</button>
+      </div>
+      <div class="console-output" id="console-output">
+        <div class="console-placeholder">Console output will appear here...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // --- Starter Templates ---
+  const STARTER_HTML = `<div class="container">
+  <h1>Hello, Playground!</h1>
+  <p>Edit the HTML, CSS, and JS tabs to experiment.</p>
+  <button id="magic-btn">Click me</button>
+  <div id="output" class="output"></div>
+</div>`;
+
+  const STARTER_CSS = `* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  background: #0f0f17;
+  color: #e4e4e7;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.container {
+  text-align: center;
+  padding: 40px;
+}
+
+h1 {
+  font-size: 2rem;
+  background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 12px;
+}
+
+p {
+  color: #71717a;
+  margin-bottom: 24px;
+  font-size: 0.95rem;
+}
+
+button {
+  background: #8b5cf6;
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: transform 150ms ease, background 150ms ease;
+}
+
+button:hover {
+  background: #7c3aed;
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+.output {
+  margin-top: 20px;
+  font-size: 0.9rem;
+  color: #06b6d4;
+  min-height: 24px;
+}`;
+
+  const STARTER_JS = `const btn = document.getElementById('magic-btn');
+const output = document.getElementById('output');
+
+let count = 0;
+
+btn.addEventListener('click', () => {
+  count++;
+  output.textContent = \`Clicked \${count} time\${count !== 1 ? 's' : ''}!\`;
+  console.log('Button clicked!', { count });
+});
+
+console.log('Playground loaded successfully!');`;
+
+  // --- DOM References ---
+  const editors = {
+    html: document.getElementById('editor-html'),
+    css:  document.getElementById('editor-css'),
+    js:   document.getElementById('editor-js'),
+  };
+  const tabs          = document.querySelectorAll('.tab');
+  const previewFrame  = document.getElementById('preview-frame');
+  const consoleOutput = document.getElementById('console-output');
+  const consoleBadge  = document.getElementById('console-badge');
+  const autoRunCheck  = document.getElementById('auto-run');
+  const statusText    = document.getElementById('status-text');
+  const statusDot     = document.getElementById('status-dot');
+  const statusCursor  = document.getElementById('status-cursor');
+  const editorPanel   = document.getElementById('editor-panel');
+  const previewPanel  = document.getElementById('preview-panel');
+  const consolePanel  = document.getElementById('console-panel');
+
+  let consoleCount = 0;
+  let debounceTimer = null;
+  let activeTab = 'html';
+
+  // --- Initialize editors with starter code ---
+  function loadStarter() {
+    editors.html.value = STARTER_HTML;
+    editors.css.value  = STARTER_CSS;
+    editors.js.value   = STARTER_JS;
+  }
+
+  loadStarter();
+
+  // --- Tab switching ---
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.getAttribute('data-tab');
+      switchTab(target);
+    });
+  });
+
+  function switchTab(target) {
+    activeTab = target;
+    tabs.forEach(t => t.classList.toggle('active', t.getAttribute('data-tab') === target));
+    Object.keys(editors).forEach(key => {
+      editors[key].classList.toggle('active', key === target);
+    });
+    editors[target].focus();
+  }
+
+  // --- Tab key support in textareas ---
+  Object.values(editors).forEach(editor => {
+    editor.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const start = editor.selectionStart;
+        const end = editor.selectionEnd;
+        editor.value = editor.value.substring(0, start) + '  ' + editor.value.substring(end);
+        editor.selectionStart = editor.selectionEnd = start + 2;
+        scheduleRun();
+      }
+    });
+
+    editor.addEventListener('input', () => {
+      if (autoRunCheck.checked) {
+        scheduleRun();
+      }
+    });
+
+    // Cursor position tracking
+    editor.addEventListener('keyup', updateCursorPos);
+    editor.addEventListener('click', updateCursorPos);
+    editor.addEventListener('input', updateCursorPos);
+  });
+
+  function updateCursorPos(e) {
+    const editor = e.target;
+    const val = editor.value.substring(0, editor.selectionStart);
+    const lines = val.split('\n');
+    const ln = lines.length;
+    const col = lines[lines.length - 1].length + 1;
+    statusCursor.textContent = `Ln ${ln}, Col ${col}`;
+  }
+
+  // --- Debounced run ---
+  function scheduleRun() {
+    clearTimeout(debounceTimer);
+    statusText.textContent = 'Updating...';
+    statusDot.style.background = 'var(--warn)';
+    debounceTimer = setTimeout(() => {
+      runCode();
+    }, 400);
+  }
+
+  // --- Run Code ---
+  function runCode() {
+    const html = editors.html.value;
+    const css  = editors.css.value;
+    const js   = editors.js.value;
+
+    // Console capture script injected into the iframe
+    const consoleCapture = `
+      <script>
+        (function() {
+          const _post = (type, args) => {
+            try {
+              parent.postMessage({
+                source: 'playground-preview',
+                type: type,
+                args: Array.from(args).map(a => {
+                  try {
+                    if (typeof a === 'object') return JSON.stringify(a, null, 2);
+                    return String(a);
+                  } catch(e) { return String(a); }
+                })
+              }, '*');
+            } catch(e) {}
+          };
+          console.log   = function() { _post('log', arguments); };
+          console.error = function() { _post('error', arguments); };
+          console.warn  = function() { _post('warn', arguments); };
+          console.info  = function() { _post('info', arguments); };
+
+          window.onerror = function(msg, url, line, col, err) {
+            _post('error', [msg + (line ? ' (line ' + line + ')' : '')]);
+          };
+          window.onunhandledrejection = function(e) {
+            _post('error', ['Unhandled Promise Rejection: ' + (e.reason || e)]);
+          };
+        })();
+      <\/script>
+    `;
+
+    const doc = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>${css}</style>
+${consoleCapture}
+</head>
+<body>
+${html}
+<script>${js}<\/script>
+</body>
+</html>`;
+
+    const frame = previewFrame;
+    frame.srcdoc = doc;
+
+    statusText.textContent = 'Ready';
+    statusDot.style.background = 'var(--success)';
+  }
+
+  // --- Console message handler ---
+  window.addEventListener('message', (e) => {
+    if (e.data && e.data.source === 'playground-preview') {
+      addConsoleEntry(e.data.type, e.data.args.join(' '));
+    }
+  });
+
+  function addConsoleEntry(type, text) {
+    // Remove placeholder
+    const placeholder = consoleOutput.querySelector('.console-placeholder');
+    if (placeholder) placeholder.remove();
+
+    const entry = document.createElement('div');
+    entry.className = `console-entry ${type}`;
+
+    const icons = {
+      log:   '&gt;',
+      error: '!',
+      warn:  '!',
+      info:  'i',
+    };
+
+    entry.innerHTML = `
+      <span class="console-entry-icon">${icons[type] || '&gt;'}</span>
+      <span class="console-entry-text">${escapeHtml(text)}</span>
+    `;
+
+    consoleOutput.appendChild(entry);
+    consoleOutput.scrollTop = consoleOutput.scrollHeight;
+
+    consoleCount++;
+    consoleBadge.textContent = consoleCount;
+    consoleBadge.classList.add('visible');
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  // --- Clear Console ---
+  function clearConsole() {
+    consoleOutput.innerHTML = '<div class="console-placeholder">Console output will appear here...</div>';
+    consoleCount = 0;
+    consoleBadge.textContent = '0';
+    consoleBadge.classList.remove('visible');
+  }
+
+  // --- Button handlers ---
+  document.getElementById('btn-run').addEventListener('click', () => {
+    clearConsole();
+    runCode();
+  });
+
+  document.getElementById('btn-clear').addEventListener('click', clearConsole);
+  document.getElementById('btn-clear-inline').addEventListener('click', clearConsole);
+
+  document.getElementById('btn-reset').addEventListener('click', () => {
+    if (confirm('Reset all code to the starter template?')) {
+      loadStarter();
+      clearConsole();
+      runCode();
+    }
+  });
+
+  // --- Keyboard shortcut: Ctrl+Enter to run ---
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      e.preventDefault();
+      clearConsole();
+      runCode();
+    }
+    // Ctrl+1/2/3 to switch tabs
+    if ((e.ctrlKey || e.metaKey) && e.key === '1') { e.preventDefault(); switchTab('html'); }
+    if ((e.ctrlKey || e.metaKey) && e.key === '2') { e.preventDefault(); switchTab('css'); }
+    if ((e.ctrlKey || e.metaKey) && e.key === '3') { e.preventDefault(); switchTab('js'); }
+  });
+
+  // --- Column Resize (editor/preview) ---
+  const resizeHandle = document.getElementById('resize-handle');
+  let isResizing = false;
+
+  resizeHandle.addEventListener('mousedown', (e) => {
+    isResizing = true;
+    resizeHandle.classList.add('active');
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    e.preventDefault();
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    if (!isResizing) return;
+    const mainRect = document.querySelector('.main').getBoundingClientRect();
+    const pct = ((e.clientX - mainRect.left) / mainRect.width) * 100;
+    const clamped = Math.max(20, Math.min(80, pct));
+    editorPanel.style.flex = 'none';
+    editorPanel.style.width = clamped + '%';
+    previewPanel.style.flex = '1';
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (isResizing) {
+      isResizing = false;
+      resizeHandle.classList.remove('active');
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    }
+  });
+
+  // --- Console Resize (vertical) ---
+  const consoleResizeHandle = document.getElementById('console-resize-handle');
+  let isResizingConsole = false;
+
+  consoleResizeHandle.addEventListener('mousedown', (e) => {
+    isResizingConsole = true;
+    consoleResizeHandle.classList.add('active');
+    document.body.style.cursor = 'row-resize';
+    document.body.style.userSelect = 'none';
+    e.preventDefault();
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    if (!isResizingConsole) return;
+    const panelRect = previewPanel.getBoundingClientRect();
+    const fromBottom = panelRect.bottom - e.clientY;
+    const clamped = Math.max(80, Math.min(400, fromBottom));
+    consolePanel.style.height = clamped + 'px';
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (isResizingConsole) {
+      isResizingConsole = false;
+      consoleResizeHandle.classList.remove('active');
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    }
+  });
+
+  // --- Initial run ---
+  setTimeout(runCode, 100);
+
+})();
+</script>
+
+</body>
+</html>
