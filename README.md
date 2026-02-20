@@ -1,3 +1,5 @@
+<p align="center"><img src="docs/preview.png" alt="code-playground preview" width="100%"></p>
+
 # Code Playground
 
 An in-browser HTML/CSS/JS code playground with live preview, built as a single self-contained HTML file.
